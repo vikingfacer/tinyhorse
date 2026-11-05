@@ -1,0 +1,34 @@
+header:
+  version: 14
+
+machine: qemux86-64
+distro: tiny-horse
+target: tiny-horse-image
+
+repos:
+  poky:
+    url: https://git.yoctoproject.org/poky
+    branch: scarthgap
+    path: layers/poky
+    layers:
+      meta:
+      meta-poky:
+      meta-yocto-bsp:
+
+  meta-tiny-horse:
+    path: meta-tiny-horse
+
+local_conf_header:
+  tiny-horse: |
+    # `nix develop` exports TMPDIR pointing at a volatile per-shell temp dir,
+    # and kas forwards it to bitbake (it is in BB_ENV_PASSTHROUGH_ADDITIONS).
+    # That overrides OE's default TMPDIR, so the whole build (and its logs)
+    # lands in a directory that is deleted when the shell exits. Pin it back
+    # to the build tree. local.conf is parsed after the environment is
+    # imported, so a strong assignment here wins over the leaked value.
+    TMPDIR = "${TOPDIR}/tmp"
+    # Keep the rootfs small; drop the default extra image types.
+    IMAGE_FSTYPES = "ext4"
+
+  debug-login: |
+    EXTRA_IMAGE_FEATURES += "debug-tweaks"
