@@ -1,0 +1,48 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          picture-server
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Serve a picture over HTTP
+### END INIT INFO
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+NAME=picture-server
+DESC="picture server"
+DAEMON=/usr/bin/serve-picture
+PYTHON=/usr/bin/python3
+PIDFILE=/var/run/$NAME.pid
+
+test -x "$DAEMON" || exit 0
+
+case "$1" in
+    start)
+        echo -n "Starting $DESC: "
+        start-stop-daemon -S -q -b -m -p "$PIDFILE" -x "$PYTHON" -- "$DAEMON"
+        echo "$NAME."
+        ;;
+    stop)
+        echo -n "Stopping $DESC: "
+        start-stop-daemon -K -q -p "$PIDFILE"
+        echo "$NAME."
+        ;;
+    restart|force-reload)
+        "$0" stop
+        sleep 1
+        "$0" start
+        ;;
+    status)
+        if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+            echo "$NAME is running"
+        else
+            echo "$NAME is not running"
+            exit 3
+        fi
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status}" >&2
+        exit 1
+        ;;
+esac

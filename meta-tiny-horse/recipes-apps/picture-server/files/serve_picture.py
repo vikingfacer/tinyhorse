@@ -49,13 +49,23 @@ class PictureHandler(BaseHTTPRequestHandler):
         sys.stderr.write("%s - %s\n" % (self.address_string(), fmt % args))
 
 
+def default_picture():
+    for candidate in (
+        Path("/usr/share/picture-server/tinyhorse.jpg"),
+        Path("tinyhorse.jpg"),
+    ):
+        if candidate.is_file():
+            return str(candidate)
+    return "/usr/share/picture-server/tinyhorse.jpg"
+
+
 def main():
     parser = argparse.ArgumentParser(description="Serve a tiny horse over HTTP.")
     parser.add_argument(
         "picture",
         nargs="?",
-        default="picture.jpg",
-        help="path to the tiny horse (default: picture.jpg)",
+        default=default_picture(),
+        help="path to the tiny horse (default: tinyhorse.jpg)",
     )
     parser.add_argument(
         "--host", default="0.0.0.0", help="address to bind (default: 0.0.0.0)"
