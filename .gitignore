@@ -1,2 +1,11 @@
 /result
 /result-*
+/build/
+/layers/
+/sstate-cache/
+/downloads/
+*.pyc
+__pycache__/
+.direnv/
+.envrc
+.kas_shell_history
