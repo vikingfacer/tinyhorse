@@ -58,6 +58,39 @@
         };
       };
 
+      yaml2qemu = pkgs.python3.pkgs.buildPythonApplication {
+        pname = "yaml2qemu";
+        version = "0.1.0";
+        pyproject = true;
+
+        src = pkgs.fetchFromGitHub {
+          owner = "vikingfacer";
+          repo = "yaml2qemu";
+          rev = "52e08bf6e1dba61098c004dec9198b68cddf1080";
+          hash = "sha256-Wv066qeBdknnG1ZnRcG27thNc18UBk6s+NQuujbq4cY=";
+        };
+
+        build-system = [ pkgs.python3.pkgs.setuptools ];
+
+        dependencies = with pkgs.python3.pkgs; [
+          pyyaml
+        ];
+
+        # yaml2qemu looks up qemu-system-* at runtime.
+        makeWrapperArgs = [
+          "--prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.qemu ]}"
+        ];
+
+        pythonImportsCheck = [ "yaml2qemu" ];
+
+        meta = {
+          homepage = "https://github.com/vikingfacer/yaml2qemu";
+          description = "Translate a YAML VM description into a QEMU command line";
+          license = pkgs.lib.licenses.mit;
+          mainProgram = "yaml2qemu";
+        };
+      };
+
       # Yocto/bitbake assume an FHS host (/bin/bash, /usr/bin/*). Wrap kas
       # plus the documented Yocto build-host requirements in an FHS sandbox.
       tiny-horse-env = pkgs.buildFHSEnv {
@@ -148,6 +181,7 @@
       default = pkgs.mkShell {
         packages = [
           inputs.self.packages.${system}.kas
+          inputs.self.packages.${system}.yaml2qemu
           pkgs.pipx
           pkgs.git
           pkgs.qemu
